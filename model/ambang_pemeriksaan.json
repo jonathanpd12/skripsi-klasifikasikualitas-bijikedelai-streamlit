@@ -1,0 +1,47 @@
+{
+  "versi": "3.0",
+  "ukuran_citra": [
+    224,
+    224
+  ],
+  "jumlah_acuan": {
+    "data_penelitian": 4961,
+    "foto_populasi": 100
+  },
+  "aturan": [
+    {
+      "id": "luas_objek_min",
+      "ciri": "luas_objek",
+      "arah": "min",
+      "ambang": 0.427256
+    },
+    {
+      "id": "luas_objek_maks",
+      "ciri": "luas_objek",
+      "arah": "maks",
+      "ambang": 0.889788
+    },
+    {
+      "id": "rasio_objek_utama_min",
+      "ciri": "rasio_objek_utama",
+      "arah": "min",
+      "ambang": 0.920274
+    },
+    {
+      "id": "jarak_ke_tengah_maks",
+      "ciri": "jarak_ke_tengah",
+      "arah": "maks",
+      "ambang": 0.143185
+    }
+  ],
+  "lapis_2": {
+    "metode": "Jarak Euclidean fitur Global Average Pooling DenseNet121 (dinormalisasi L2) ke citra biji acuan terdekat, k-NN dengan k = 1. Ambang = nilai yang lebih besar antara persentil 99,5 jarak data validasi dan estimasi batas jarak foto populasi antar sesi.",
+    "lapisan_fitur": "global_average_pooling2d",
+    "k": 1,
+    "ambang_jarak": 0.677393,
+    "jumlah_acuan": {
+      "data_training": 4134,
+      "foto_populasi": 100
+    }
+  }
+}

@@ -9,6 +9,8 @@ __pycache__/
 model/*
 !model/best_model_basemodel.keras
 !model/class_labels.json
+!model/ambang_pemeriksaan.json
+!model/fitur_acuan.npy
 
 *.jpg
 *.jpeg
