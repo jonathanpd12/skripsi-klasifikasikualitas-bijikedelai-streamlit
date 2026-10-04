@@ -35,10 +35,10 @@
     }
   ],
   "lapis_2": {
-    "metode": "Jarak Euclidean fitur Global Average Pooling DenseNet121 (dinormalisasi L2) ke citra biji acuan terdekat, k-NN dengan k = 1. Ambang = nilai yang lebih besar antara persentil 99,5 jarak data validasi dan estimasi batas jarak foto populasi antar sesi.",
+    "metode": "Jarak Euclidean fitur Global Average Pooling DenseNet121 (dinormalisasi L2) ke citra biji acuan terdekat, k-NN dengan k = 1. Ambang = nilai yang lebih besar antara persentil 99,5 jarak data validasi dan estimasi batas jarak foto populasi yang dihitung tanpa foto itu sendiri.",
     "lapisan_fitur": "global_average_pooling2d",
     "k": 1,
-    "ambang_jarak": 0.677393,
+    "ambang_jarak": 0.685379,
     "jumlah_acuan": {
       "data_training": 4134,
       "foto_populasi": 100
