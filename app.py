@@ -157,7 +157,7 @@ DESKRIPSI_KELAS = {
     "Broken soybeans": ("Biji bekas gigitan serangga, terbelah, atau pecah hingga seperempat "
                         "volume biji atau lebih."),
     "Immature soybeans": "Biji mengerut atau memiliki bagian berwarna hijau.",
-    "Intact soybeans": "Biji utuh dan mengilap, tanpa cacat fisik yang tampak.",
+    "Intact soybeans": "Biji utuh dan mengilap.",
     "Skin-damaged soybeans": "Biji dengan kulit biji yang rusak.",
     "Spotted soybeans": "Biji dengan bercak penyakit pada permukaannya.",
 }
@@ -225,7 +225,7 @@ def muat_ambang_pemeriksaan():
     ciri_modul = {ciri for ciri, _ in DAFTAR_ATURAN}
     if any(aturan["ciri"] not in ciri_modul for aturan in ambang["aturan"]):
         st.error("File ambang_pemeriksaan.json tidak sesuai dengan utils/pemeriksaan_awal.py. "
-                 "Gunakan kedua file dari hasil TAHAP 19 yang sama.")
+                 "Gunakan kedua file dari hasil TAHAP 18 di Google Colab yang sama.")
         st.stop()
     return ambang
 

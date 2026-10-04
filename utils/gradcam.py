@@ -50,8 +50,8 @@ def _siapkan_latar(sumber_citra):
 
 
 def overlay_gradcam(sumber_citra, heatmap, alpha=0.45):
-    """Latar overlay di-resize dengan default cv2 (bilinear), bukan NEAREST milik
-    praproses model, supaya tampilannya menyatu dengan visualisasi Grad-CAM pada
+    """Latar overlay di-resize dengan default cv2 (bilinear), bukan NEAREST seperti pada
+    preprocessing model, supaya tampilannya menyatu dengan visualisasi Grad-CAM pada
     tahap evaluasi. Alpha 0.45 sama dengan yang dipakai pada tahap evaluasi."""
     img_orig = _siapkan_latar(sumber_citra)
 
