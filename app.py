@@ -183,10 +183,11 @@ SARAN_PERBAIKAN = {
 }
 
 PENJELASAN_RINCIAN = (
-    "Lapis 1 menilai ketentuan pemotretan, sedangkan Lapis 2 menilai kemiripan dengan citra biji "
-    "kedelai acuan. Luas objek adalah bagian bingkai yang ditempati objek utama. Rasio objek utama "
-    "bernilai 1 bila hanya ada satu objek. Jarak ke tengah bernilai 0 bila objek tepat di tengah "
-    "bingkai. Jarak fitur makin kecil berarti makin mirip citra biji kedelai acuan."
+    "Stage 1 menilai ketentuan pemotretan, sedangkan Stage 2 menilai kemiripan dengan citra biji "
+    "kedelai acuan. Luas objek adalah bagian bingkai yang ditempati objek utama, bernilai 0 sampai 1. "
+    "Rasio objek utama bernilai 1 bila hanya ada satu objek. Jarak ke tengah bernilai 0 bila objek "
+    "tepat di tengah bingkai. Jarak fitur dihitung antara dua vektor fitur model, bernilai 0 sampai 2, "
+    "dan makin kecil berarti makin mirip citra biji kedelai acuan."
 )
 
 
@@ -268,20 +269,20 @@ def html_alur(status=None):
     # status: None (belum ada citra), "lolos", "tolak_lapis1", atau "tolak_lapis2"
     teks_awal = [
         "Satu biji kedelai per citra, format JPG, JPEG, atau PNG.",
-        "Lapis 1 menilai ketentuan pemotretan, Lapis 2 menilai kemiripan dengan citra biji kedelai acuan.",
+        "Stage 1 menilai ketentuan pemotretan, Stage 2 menilai kemiripan dengan citra biji kedelai acuan.",
         "Kelas kualitas, tingkat keyakinan, Grad-CAM, dan distribusi probabilitas.",
     ]
     if status is None:
         keadaan = [("", "1", teks_awal[0]), ("", "2", teks_awal[1]), ("", "3", teks_awal[2])]
     elif status == "lolos":
         keadaan = [("lolos", "✓", "Citra diterima."),
-                   ("lolos", "✓", "Lolos Lapis 1 dan Lapis 2."),
+                   ("lolos", "✓", "Lolos Stage 1 dan Stage 2."),
                    ("lolos", "✓", "Hasil klasifikasi ditampilkan di bawah.")]
     else:
-        lapis = "Lapis 1 (ketentuan pemotretan)" if status == "tolak_lapis1" else \
-                "Lapis 2 (kemiripan dengan citra biji kedelai acuan)"
+        stage = "Stage 1 (ketentuan pemotretan)" if status == "tolak_lapis1" else \
+                "Stage 2 (kemiripan dengan citra biji kedelai acuan)"
         keadaan = [("lolos", "✓", "Citra diterima."),
-                   ("tolak", "✕", f"Tidak lolos {lapis}."),
+                   ("tolak", "✕", f"Tidak lolos {stage}."),
                    ("lewati", "3", "Tidak dijalankan.")]
     judul = ["Unggah citra", "Pemeriksaan awal", "Klasifikasi"]
     isi = "".join(
@@ -312,17 +313,18 @@ def html_rincian(ciri, alasan, jarak):
     status = {True: "<span class='status-ya'>✓ Terpenuhi</span>",
               False: "<span class='status-tidak'>✗ Tidak terpenuhi</span>"}
     tabel = "".join(
-        f"<tr><td>{lapis}</td><td>{aturan}</td><td>{nilai}</td><td>{ambang}</td><td>{status[ok]}</td></tr>"
-        for lapis, aturan, nilai, ambang, ok in baris
+        f"<tr><td>{stage}</td><td>{aturan}</td><td>{nilai}</td><td>{threshold}</td>"
+        f"<td>{status[ok]}</td></tr>"
+        for stage, aturan, nilai, threshold, ok in baris
     )
     daftar = "".join(
         f"<div class='rinci-item'><div class='rinci-atas'><span>{aturan}</span>{status[ok]}</div>"
-        f"<div class='rinci-bawah'>Lapis {lapis}, nilai {nilai}, ambang {ambang}</div></div>"
-        for lapis, aturan, nilai, ambang, ok in baris
+        f"<div class='rinci-bawah'>Stage {stage}, nilai {nilai}, threshold {threshold}</div></div>"
+        for stage, aturan, nilai, threshold, ok in baris
     )
     return (
-        "<table class='rincian'><thead><tr><th>Lapis</th><th>Aturan</th><th>Nilai</th>"
-        f"<th>Ambang</th><th>Status</th></tr></thead><tbody>{tabel}</tbody></table>"
+        "<table class='rincian'><thead><tr><th>Stage</th><th>Aturan</th><th>Nilai</th>"
+        f"<th>Threshold</th><th>Status</th></tr></thead><tbody>{tabel}</tbody></table>"
         f"<div class='rincian-ponsel'>{daftar}</div>"
     )
 
@@ -333,7 +335,7 @@ def tampilkan_rincian(ciri, alasan, jarak, terbuka):
     with st.expander("Rincian pemeriksaan awal", expanded=terbuka):
         st.markdown(html_rincian(ciri, alasan, jarak), unsafe_allow_html=True)
         if jarak is None:
-            st.caption("Lapis 2 tidak dijalankan karena citra tidak lolos Lapis 1.")
+            st.caption("Stage 2 tidak dijalankan karena citra tidak lolos Stage 1.")
         st.caption(PENJELASAN_RINCIAN)
 
 
@@ -405,9 +407,9 @@ with st.expander("Informasi model", icon=":material/info:"):
     acuan = ambang_pemeriksaan["jumlah_acuan"]
     acuan_l2 = ambang_pemeriksaan["lapis_2"]["jumlah_acuan"]
     jumlah_aturan = len(ambang_pemeriksaan["aturan"])
-    dasar_lapis1 = (f"{ribuan(acuan['data_penelitian'])} citra data training dan validasi, "
+    dasar_stage1 = (f"{ribuan(acuan['data_penelitian'])} citra data training dan data validation, "
                     f"serta {ribuan(acuan['foto_populasi'])} foto populasi")
-    acuan_lapis2 = (f"{ribuan(acuan_l2['data_training'])} citra data training dan "
+    acuan_stage2 = (f"{ribuan(acuan_l2['data_training'])} citra data training dan "
                     f"{ribuan(acuan_l2['foto_populasi'])} foto populasi")
     st.markdown(f"""
 | Komponen | Keterangan |
@@ -419,10 +421,10 @@ with st.expander("Informasi model", icon=":material/info:"):
 | Kelas kualitas | {len(class_names)} kelas: Broken, Immature, Intact, Skin-damaged, Spotted |
 | Definisi kelas | Lin dkk. (2023), *Data in Brief* 48, 109300 |
 | Lapisan Grad-CAM | `conv5_block16_concat` |
-| Pemeriksaan awal Lapis 1 | {jumlah_aturan} aturan ketentuan pemotretan berdasarkan segmentasi Otsu |
-| Pemeriksaan awal Lapis 2 | Jarak fitur Global Average Pooling ke citra acuan terdekat (k-NN, k = 1) |
-| Dasar ambang Lapis 1 | {dasar_lapis1} |
-| Citra acuan Lapis 2 | {acuan_lapis2} |
+| Pemeriksaan awal Stage 1 | {jumlah_aturan} aturan ketentuan pemotretan berdasarkan segmentasi Otsu |
+| Pemeriksaan awal Stage 2 | Jarak fitur Global Average Pooling ke citra acuan terdekat (k-NN, k = 1) |
+| Dasar threshold Stage 1 | {dasar_stage1} |
+| Citra acuan Stage 2 | {acuan_stage2} |
 """)
 
 st.write("")
@@ -511,7 +513,7 @@ kol_kiri, kol_kanan = st.columns([1, 1.25], gap="large")
 with kol_kiri:
     st.markdown("<div class='judul-bagian'>Citra yang diuji</div>", unsafe_allow_html=True)
     st.image(img_pil, caption=f"{nama_file} (224 × 224 piksel, citra yang masuk ke model)", width=320)
-    st.markdown("<span class='chip chip-lolos'>✓ Lolos pemeriksaan awal (Lapis 1 dan Lapis 2)</span>",
+    st.markdown("<span class='chip chip-lolos'>✓ Lolos pemeriksaan awal (Stage 1 dan Stage 2)</span>",
                 unsafe_allow_html=True)
 
 with kol_kanan:
@@ -541,7 +543,8 @@ st.divider()
 st.markdown("<div class='judul-bagian'>Visualisasi Grad-CAM</div>", unsafe_allow_html=True)
 st.markdown(
     "<div class='teks-bantu'>Grad-CAM menandai area citra yang paling memengaruhi keputusan model. "
-    "Warna merah menunjukkan aktivasi tinggi, sedangkan warna biru menunjukkan aktivasi rendah.</div>",
+    "Warna merah menunjukkan aktivasi tertinggi pada citra tersebut, sedangkan warna biru "
+    "menunjukkan aktivasi rendah.</div>",
     unsafe_allow_html=True,
 )
 
