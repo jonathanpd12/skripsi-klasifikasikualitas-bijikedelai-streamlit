@@ -398,7 +398,7 @@ st.markdown(
     "Skin-damaged, dan Spotted.</div>"
     "<div class='catatan'>Hasil yang ditampilkan merupakan prediksi model, bukan penilaian mutlak kualitas "
     "biji. Pemeriksaan awal hanya menyaring citra masukan dan tidak dirancang untuk membedakan biji "
-    "kedelai dari kacang jenis lain.</div>",
+    "kedelai dari komoditas biji-bijian lain.</div>",
     unsafe_allow_html=True,
 )
 
