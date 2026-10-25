@@ -1,3 +1,5 @@
+import base64
+import html
 import io
 import os
 
@@ -8,6 +10,7 @@ import tensorflow as tf
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from PIL import Image
 
 from utils.model_loader import muat_model, muat_label_kelas, NAMA_FILE_MODEL
 from utils.preprocessing import muat_dan_resize, siapkan_input_model
@@ -190,6 +193,31 @@ PENJELASAN_RINCIAN = (
     "dan makin kecil berarti makin mirip citra biji kedelai acuan."
 )
 
+# ============================================================
+# Penampil gambar: gambar disisipkan langsung ke halaman (base64)
+# agar tidak bergantung pada file sementara /media/ di server
+# ============================================================
+def tampilkan_gambar(sumber, caption=None, lebar=None):
+    # sumber: citra PIL, array NumPy, atau figur Matplotlib
+    buffer = io.BytesIO()
+    if isinstance(sumber, plt.Figure):
+        sumber.savefig(buffer, format="png", dpi=DPI_FIGUR, bbox_inches="tight",
+                       facecolor=sumber.get_facecolor())
+    else:
+        if isinstance(sumber, np.ndarray):
+            sumber = Image.fromarray(sumber)
+        sumber.save(buffer, format="PNG")
+    data = base64.b64encode(buffer.getvalue()).decode()
+    ukuran = f"width:{lebar}px;max-width:100%;" if lebar else "width:100%;"
+    teks = (f"<div style='text-align:center;color:#9AA7B4;font-size:.875rem;margin-top:.4rem;"
+            f"{'max-width:' + str(lebar) + 'px;' if lebar else ''}'>{html.escape(caption)}</div>"
+            if caption else "")
+    st.markdown(
+        f"<div style='margin-bottom:1rem'><img src='data:image/png;base64,{data}' "
+        f"style='{ukuran}height:auto;display:block' alt='{html.escape(caption or 'gambar')}'/>"
+        f"{teks}</div>",
+        unsafe_allow_html=True,
+    )
 
 def koma(nilai, digit=4):
     # Format angka Indonesia: koma sebagai pemisah desimal
@@ -351,7 +379,7 @@ def tampilkan_penolakan(img_pil, kontur, alasan, ciri, jarak, nama_file):
         teks_caption = nama_file
         if kontur is not None:
             teks_caption += " (garis merah: objek utama yang terbaca)"
-        st.image(kanvas, caption=teks_caption, width=320)
+        tampilkan_gambar(kanvas, caption=teks_caption, lebar=320)
     with kol_info:
         st.markdown("<div class='judul-bagian'>Citra tidak lolos pemeriksaan awal</div>",
                     unsafe_allow_html=True)
@@ -512,7 +540,7 @@ kol_kiri, kol_kanan = st.columns([1, 1.25], gap="large")
 
 with kol_kiri:
     st.markdown("<div class='judul-bagian'>Citra yang diuji</div>", unsafe_allow_html=True)
-    st.image(img_pil, caption=f"{nama_file} (224 × 224 piksel, citra yang masuk ke model)", width=320)
+    tampilkan_gambar(img_pil, caption=f"{nama_file} (224 × 224 piksel, citra yang masuk ke model)", lebar=320)
     st.markdown("<span class='chip chip-lolos'>✓ Lolos pemeriksaan awal (Stage 1 dan Stage 2)</span>",
                 unsafe_allow_html=True)
 
@@ -568,7 +596,7 @@ with kol_h1:
     cbar.ax.tick_params(colors=WARNA_TEKS_FIGUR, labelsize=7)
     cbar.outline.set_edgecolor(WARNA_GARIS_FIGUR)
     fig_hm.tight_layout()
-    st.pyplot(fig_hm)
+    tampilkan_gambar(fig_hm)
     plt.close(fig_hm)
 
 with kol_h2:
@@ -584,7 +612,7 @@ with kol_h2:
     ax_ov.set_title("Overlay Grad-CAM", fontsize=11, fontweight="bold",
                     color=WARNA_TEKS_FIGUR, pad=10)
     fig_ov.tight_layout()
-    st.pyplot(fig_ov)
+    tampilkan_gambar(fig_ov)
     plt.close(fig_ov)
 
 st.markdown(
